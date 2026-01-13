@@ -16,7 +16,7 @@ export const authenticate = (
         .status(401)
         .json({ success: false, data: null, error: "UNAUTHORIZED" });
     }
-    const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
+    const decoded = jwt.verify(token, "SECRET_KEY");
     //@ts-ignore
     req.user = decoded;
     next();
