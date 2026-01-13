@@ -1,0 +1,104 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  creator
+  contestee
+}
+
+model User {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  email     String   @unique
+  role      Role
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+
+
+model contests {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  description String
+  creator_id  String   @db.ObjectId
+  start_time  DateTime
+  end_time    DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model mcq_questions{
+  id                    String   @id @default(auto()) @map("_id") @db.ObjectId
+  contest_id            String   @db.ObjectId
+  question_text         String
+  options               Json
+  correct_option_index  Int
+  points                Int      @default(1)
+  createdAt             DateTime @default(now())
+}
+
+model mcq_submissions{
+  id                    String   @id @default(auto()) @map("_id") @db.ObjectId
+  user_id               String   @db.ObjectId
+  question_id           String   @db.ObjectId
+  selected_option_index Int
+  is_correct            Boolean
+  points_earned         Int      @default(0)
+  submitted_at          DateTime @default(now())
+
+  @@unique([user_id, question_id])
+}
+
+
+model dsa_problems {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  contest_id     String   @db.ObjectId
+  title          String
+  description    String
+  tags           Json
+  points         Int      @default(100)
+  time_limit     Int      @default(2000)
+  memory_limit   Int      @default(256)
+  created_at     DateTime @default(now())
+}
+
+
+model test_cases {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  problem_id      String   @db.ObjectId
+  input           String
+  expected_output String
+  is_hidden       Boolean  @default(false)
+  created_at      DateTime @default(now())
+}
+model dsa_submissions {
+  id                 String   @id @default(auto()) @map("_id") @db.ObjectId
+  user_id            String   @db.ObjectId
+  problem_id         String   @db.ObjectId
+  code               String
+  language           String?
+  status             String?
+  points_earned     Int      @default(0)
+  test_cases_passed Int      @default(0)
+  total_test_cases  Int      @default(0)
+  execution_time    Int?
+  submitted_at      DateTime @default(now())
+
+  @@unique([user_id, problem_id])
+}
+
