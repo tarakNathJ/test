@@ -339,12 +339,26 @@ export const submitMCQAnswers = async (req: Request, res: Response) => {
       });
     }
 
+    const responce = await PrismaClient.mcq_submissions.create({
+      data: {
+        user_id: user_id,
+        question_id: questionId,
+        selected_option_index: selectedOptionIndex,
+        is_correct: selectedOptionIndex === mcqQuestion.correct_option_index,
+        points_earned:
+          selectedOptionIndex === mcqQuestion.correct_option_index
+            ? mcqQuestion.points
+            : 0,
+      },
+    });
+
     // Logic to evaluate answers and calculate score would go here
 
-    return res.status(200).json({
+    return res.status(201).json({
       success: true,
       data: {
-        message: "MCQ answers submitted successfully",
+        isCorrect: responce.is_correct,
+        pointsEarned: responce.points_earned,
       },
       error: null,
     });
